@@ -112,31 +112,45 @@ namespace impl {
 
     std::string to_base64(const char* d, size_t s)
     {
+        if (s == 0)
+            return {};
+
         return base64_encode(reinterpret_cast<const BYTE*>(d), static_cast<unsigned int>(s));
     }
     std::string to_base64(const std::vector<char>& d)
     {
         if (d.size())
             return to_base64(d.data(), d.size());
+
         return std::string();
     }
 
     std::vector<char> from_base64(const std::string& base64_str)
     {
+        if (base64_str.empty())
+            return {};
+
         std::vector<BYTE> out = base64_decode(base64_str);
-        SSL_HELPERS_ASSERT(!out.empty(), "Unable to decode base58 string");
+        SSL_HELPERS_ASSERT(!out.empty(), "Unable to decode base64 string");
         return std::vector<char>((const char*)out.data(), ((const char*)out.data()) + out.size());
     }
 
     size_t from_base64(const std::string& base64_str, char* out_data, size_t out_data_len)
     {
+        if (base64_str.empty())
+        {
+            out_data_len = 0;
+            return 0;
+        }
+
         std::vector<BYTE> out = base64_decode(base64_str);
-        SSL_HELPERS_ASSERT(!out.empty(), "Unable to decode base58 string");
+        SSL_HELPERS_ASSERT(!out.empty(), "Unable to decode base64 string");
         SSL_HELPERS_ASSERT(out.size() <= out_data_len);
         if (!out.empty())
         {
             memcpy(out_data, out.data(), out.size());
         }
+
         return out.size();
     }
 
