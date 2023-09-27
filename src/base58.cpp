@@ -670,15 +670,22 @@ namespace impl {
             return to_base58(d.data(), d.size());
         return std::string();
     }
-    std::vector<char> from_base58(const std::string& base58_str)
+
+    std::vector<char> from_base58(const char* base58_str)
     {
         std::vector<unsigned char> out;
-        if (!DecodeBase58(base58_str.c_str(), out))
+        if (!DecodeBase58(base58_str, out))
         {
             SSL_HELPERS_ERROR("Unable to decode base58 string");
         }
         return std::vector<char>((const char*)out.data(), ((const char*)out.data()) + out.size());
     }
+
+    std::vector<char> from_base58(const std::string& base58_str)
+    {
+        return from_base58(base58_str.c_str());
+    }
+
     /**
  *  @return the number of bytes decoded
  */

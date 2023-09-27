@@ -37,6 +37,17 @@ std::string from_base58(const std::string& str)
     return { data.data(), data.size() };
 }
 
+std::string to_base58(const char* data, size_t len)
+{
+    return impl::to_base58(data, len);
+}
+
+std::string from_base58(const char* str)
+{
+    std::vector<char> data = impl::from_base58(str);
+    return { data.data(), data.size() };
+}
+
 std::string to_base64(const std::string& data)
 {
     return impl::to_base64(data.data(), data.size());
@@ -45,6 +56,17 @@ std::string to_base64(const std::string& data)
 std::string from_base64(const std::string& str)
 {
     std::vector<char> data = impl::from_base64(str);
+    return { data.data(), data.size() };
+}
+
+std::string to_base64(const char* data, size_t len)
+{
+    return impl::to_base64(data, len);
+}
+
+std::string from_base64(const char* str, size_t len)
+{
+    std::vector<char> data = impl::from_base64(str, len);
     return { data.data(), data.size() };
 }
 

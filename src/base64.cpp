@@ -18,9 +18,11 @@ namespace impl {
             return (isalnum(c) || (c == '+') || (c == '/'));
         }
 
-        std::string base64_encode(BYTE const* buf, unsigned int bufLen)
+        std::string base64_encode(const BYTE* buf, size_t bufLen)
         {
             std::string ret;
+            ret.reserve(bufLen * 2);
+
             int i = 0;
             int j = 0;
             BYTE char_array_3[3];
@@ -62,14 +64,14 @@ namespace impl {
             return ret;
         }
 
-        std::vector<BYTE> base64_decode(std::string const& encoded_string)
+        std::vector<BYTE> base64_decode(const BYTE* encoded_string, size_t in_len)
         {
-            int in_len = encoded_string.size();
             int i = 0;
             int j = 0;
             int in_ = 0;
             BYTE char_array_4[4], char_array_3[3];
             std::vector<BYTE> ret;
+            ret.reserve(in_len / 2);
 
             while (in_len-- && (encoded_string[in_] != '=') && is_base64(encoded_string[in_]))
             {
@@ -115,7 +117,7 @@ namespace impl {
         if (s == 0)
             return {};
 
-        return base64_encode(reinterpret_cast<const BYTE*>(d), static_cast<unsigned int>(s));
+        return base64_encode(reinterpret_cast<const BYTE*>(d), s);
     }
     std::string to_base64(const std::vector<char>& d)
     {
@@ -125,14 +127,19 @@ namespace impl {
         return std::string();
     }
 
-    std::vector<char> from_base64(const std::string& base64_str)
+    std::vector<char> from_base64(const char* base64_str, size_t len)
     {
-        if (base64_str.empty())
+        if (len == 0)
             return {};
 
-        std::vector<BYTE> out = base64_decode(base64_str);
+        std::vector<BYTE> out = base64_decode(reinterpret_cast<const BYTE*>(base64_str), len);
         SSL_HELPERS_ASSERT(!out.empty(), "Unable to decode base64 string");
         return std::vector<char>((const char*)out.data(), ((const char*)out.data()) + out.size());
+    }
+
+    std::vector<char> from_base64(const std::string& base64_str)
+    {
+        return from_base64(base64_str.c_str(), base64_str.size());
     }
 
     size_t from_base64(const std::string& base64_str, char* out_data, size_t out_data_len)
@@ -143,7 +150,7 @@ namespace impl {
             return 0;
         }
 
-        std::vector<BYTE> out = base64_decode(base64_str);
+        std::vector<BYTE> out = base64_decode(reinterpret_cast<const BYTE*>(base64_str.c_str()), base64_str.size());
         SSL_HELPERS_ASSERT(!out.empty(), "Unable to decode base64 string");
         SSL_HELPERS_ASSERT(out.size() <= out_data_len);
         if (!out.empty())
