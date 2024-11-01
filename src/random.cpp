@@ -11,14 +11,14 @@
 
 namespace ssl_helpers {
 
-uint32_t create_pseudo_random_from_time(const uint32_t offset)
+uint64_t create_pseudo_random_from_time(const uint64_t offset)
 {
     using clock_type = std::chrono::high_resolution_clock;
     auto now = clock_type::now().time_since_epoch().count();
 
     /// High performance random generator
     /// http://xorshift.di.unimi.it/
-    uint64_t r = (uint64_t)now + uint64_t(offset) * 2685821657736338717ULL;
+    uint64_t r = (uint64_t)now + offset * 2685821657736338717ULL;
     r ^= (r >> 12);
     r ^= (r << 25);
     r ^= (r >> 27);
@@ -26,7 +26,7 @@ uint32_t create_pseudo_random_from_time(const uint32_t offset)
     return r;
 }
 
-std::string create_pseudo_random_string_from_time(const uint32_t offset)
+std::string create_pseudo_random_string_from_time(const uint64_t offset)
 {
     auto r = create_pseudo_random_from_time(offset + 1);
     impl::ripemd160::encoder enc;
